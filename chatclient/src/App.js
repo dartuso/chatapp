@@ -20,18 +20,17 @@ const App = () => {
 
 
     useEffect(() => {
-        // let nick = cookies.nickname
-        if (name === "") {
-            socket.emit("join", cookies.nickname);
-        }
-        socket.on('updateUser', username => {
+        socket.emit("join", cookies.nickname );
+        socket.on("updateUser", username => {
+            setName("")
             setName(username);
             setCookie("nickname", username)
         })
-    });
+    },[cookies.nickname,cookies, setCookie]);
 
     useEffect(() => {
         socket.on("users", users => {
+            setUsers([])
             setUsers(users);
         });
     },[users]);
@@ -40,6 +39,7 @@ const App = () => {
     useEffect(() => {
         socket.on("getCached", messages => {
                 console.log("Received cache")
+                setMessages([])
                 setMessages(messages);
             }
         );
@@ -49,7 +49,7 @@ const App = () => {
             setMessages([...messages, message])
         });
 
-    });
+    },[messages]);
 
 
     const sendMessage = event => {

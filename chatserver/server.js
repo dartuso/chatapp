@@ -21,15 +21,14 @@ io.on("connect", socket => {
             updateName(name)
         }
         addUser(socket.id, name);
-        sendPreviousMessages();
-
-        sendUserMsg(name + " is your name, welcome!")
 
 
 
-        console.log("Sent users to all users")
+        // console.log("Sent users to all users")
         io.emit("users", users);
+        // socket.emit("getCached", messages);
         sendServerMsg(name + " has joined!")
+        // sendUserMsg(name + " is your name, welcome!")
     });
 
 
@@ -174,7 +173,6 @@ io.on("connect", socket => {
 
     const sendPreviousMessages = () => {
         console.log("Sending cached  to " +socket.id )
-        socket.emit("getCached", messages);
     }
 
 });
