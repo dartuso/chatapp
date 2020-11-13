@@ -1,13 +1,13 @@
 import React from "react";
-
+import "./Input.css"
 export default function Input({ setMessage, sendMessage, message }) {
 
     return (
-        <form className="form">
+        <form className="formBox">
             <input
-                className="input"
+                className="inputBox"
                 type="text"
-                placeholder="Type a message..."
+                placeholder="Type here to chat"
                 value={message}
                 onChange={({ target: { value } }) => setMessage(value)}
                 onKeyPress={event => event.key === 'Enter' ? sendMessage(event) : null}

@@ -1,5 +1,6 @@
 import React, {useEffect, useRef} from "react";
 import Message from "./Message";
+import "./MessageDisplay.css"
 
 export default function MessageDisplay({messages, users}) {
     const messagesEndRef = useRef(null)

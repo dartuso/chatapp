@@ -1,5 +1,6 @@
 import React from "react";
 import {useCookies} from "react-cookie";
+import "./Message.css"
 
  const Message = ({name: name,text: text, color: color,date: date}) => {
      const [cookies, setCookie] = useCookies(["nickname"]);
@@ -19,10 +20,18 @@ import {useCookies} from "react-cookie";
      }
 
      return (
-         <div style={{color:color}}>
-             {date + " " + name + ": " + text}
+         <div className="message" >
+             <div className="time">
+                 {date + " "}
+             </div>
+             <div className="user" style={{color:color}}>
+                 {name + ": "}
+             </div>
+             <div className="message" style={sentByUser ? {fontWeight: bold} : {fontWeight: normal}}>
+                 {text}
+             </div>
          </div>
      );
-}
+};
 
 export default Message;

@@ -4,6 +4,7 @@ import Input from "./Components/Input";
 import MessageDisplay from "./Components/MessageDisplay";
 import OnlineUsers from "./Components/OnlineUsers";
 import {useCookies} from "react-cookie";
+import "./App.css"
 
 const socket = io(
     'localhost:4001',
@@ -20,20 +21,20 @@ const App = () => {
 
 
     useEffect(() => {
-        socket.emit("join", cookies.nickname );
+        socket.emit("join", cookies.nickname);
         socket.on("updateUser", username => {
             setName("")
             setName(username);
             setCookie("nickname", username)
         })
-    },[cookies.nickname,cookies, setCookie]);
+    }, [cookies.nickname, cookies, setCookie]);
 
     useEffect(() => {
         socket.on("users", users => {
             setUsers([])
             setUsers(users);
         });
-    },[users]);
+    }, [users]);
 
 
     useEffect(() => {
@@ -49,7 +50,7 @@ const App = () => {
             setMessages([...messages, message])
         });
 
-    },[messages]);
+    }, [messages]);
 
 
     const sendMessage = event => {
@@ -60,11 +61,13 @@ const App = () => {
 
     return (
         <div className="App">
-            <div>{name} is your name</div>
-            <OnlineUsers users={users}/>
-            <div className="ChatBox">
-                <MessageDisplay messages={messages} users={users}/>
-                <Input message={message} sendMessage={sendMessage} setMessage={setMessage}/>
+            <div className="Info">{name} is your name.</div>
+            <div className="ChatGrid">
+                <OnlineUsers users={users}/>
+                <div className="ChatBox">
+                    <MessageDisplay messages={messages} users={users}/>
+                    <Input message={message} sendMessage={sendMessage} setMessage={setMessage}/>
+                </div>
             </div>
         </div>
     );

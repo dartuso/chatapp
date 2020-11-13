@@ -1,4 +1,5 @@
 import React from "react";
+import "./OnlineUsers.css"
 
  const OnlineUsers = ({users}) => (
     <div>
