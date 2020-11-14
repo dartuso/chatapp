@@ -1,0 +1,28 @@
+{
+  "name": "chatapp",
+  "version": "1.0.0",
+  "description": "Daniel Artuso\r 30029826\r https://github.com/dartuso/chatapp\r http://www.danielartuso.codes/chatapp/",
+  "main": "/chatserver/server.js",
+  "scripts": {
+    "preinstall": "cd chatclient",
+    "start": "node /chatclient/server.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dartuso/chatapp.git"
+  },
+  "dependencies": {
+    "express": "^4.17.1",
+    "socket.io": "^3.0.0"
+  },
+  "author": "Daniel Artuso",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/dartuso/chatapp/issues"
+  },
+  "homepage": "https://github.com/dartuso/chatapp#readme",
+  "engines": {
+    "node": "14.x"
+  }
+}
