@@ -1,14 +1,12 @@
 .formBox {
     display: flex;
-    border-top: 2px solid #D3D3D3;
+    border: 2px solid #a4a3a3;
 }
 
 .inputBox {
-    border: none;
-    border-radius: 0;
-    padding: 5%;
+    padding: 2%;
     width: 80%;
-    font-size: 1.2em;
+    font-size: 1em;
 }
 
 input:focus, textarea:focus, select:focus{
@@ -16,12 +14,9 @@ input:focus, textarea:focus, select:focus{
 }
 
 .sendButton {
-    color: #fff !important;
-    text-transform: uppercase;
-    text-decoration: none;
+    color: #fff;
     background: rgb(18, 8, 110);
-    padding: 20px;
-    display: inline-block;
-    border: none;
     width: 20%;
+    border-radius: 20px;
+    font-weight: 500;
 }

@@ -22,8 +22,30 @@
   background-color: #ffffff;
 }
 
+
+
 @media only screen and (max-width: 960px){
   .ChatGrid{
     width: 100%;
   }
+}
+
+.ChatComponents{
+  display: block;
+}
+
+.OnlineUsers{
+  display: block;
+}
+.Title{
+  font-weight: bolder;
+  background-color: #8ba9fc;
+  justify-content: center;
+  text-align: center;
+  padding-bottom: 10px;
+}
+.MessageBox{
+  height: 80vh;
+  overflow-x: hidden;
+  overflow-y: auto;
 }
