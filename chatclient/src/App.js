@@ -6,54 +6,68 @@ import OnlineUsers from "./Components/OnlineUsers";
 import {useCookies} from "react-cookie";
 import "./App.css"
 
-let socket
+let socket = io(
+    'localhost:4001',
+    {
+        transports: ['websocket']
+    });
 
 const App = () => {
-    const [name, setName] = useState("");
     const [users, setUsers] = useState([]);
     const [message, setMessage] = useState("");
     const [messages, setMessages] = useState([]);
     const [cookies, setCookie] = useCookies(["nickname"]);
 
     useEffect(() => {
-         socket = io(
-            'localhost:4001',
-            {
-                transports: ['websocket']
-            });
         socket.emit("join", cookies.nickname);
+
+        return () => {
+            socket.off("join")
+        }
+    },[]);
+
+    useEffect(() => {
         socket.on("getCached", messages => {
                 setMessages(messages);
             }
         );
-    }, []);
 
-
-
+        return () => {
+            socket.off("getCached");
+        }
+    });
 
     useEffect(() => {
         socket.on("updateUser", username => {
-            setName("")
-            setName(username);
             setCookie("nickname", username)
         })
-    },[cookies,setCookie,name,setName]);
+        return () => {
+            socket.off("updateUser")
+        }
+    },[]);
+
 
     useEffect(() => {
         socket.on("users", users => {
-            setUsers([])
             setUsers(users);
         });
-    },[users,setUsers]);
+        return () => {
+            socket.off("users")
+        }
+    });
 
 
     useEffect(() => {
         socket.on("getMsg", message => {
-            messages.push(message)
-            setMessages(messages)
+            //FUNCTIONAL UPDATE VERY IMPORTANT
+            message.user = true
+            message.color =
+            setMessages([...messages,message])
         });
-
-    },[messages]);
+        return () => {
+            socket.off("getMsg")
+        }
+    });
 
 
     const sendMessage = event => {
@@ -69,11 +83,11 @@ const App = () => {
             <div className="Apptitle">Daniel's Chat App 📃</div>
             <div className="break"/>
             <div className="ChatGrid">
-                <div>
-                    <MessageDisplay messages={messages} users={users}/>
+                <div className="ChatComponents">
+                    <MessageDisplay messages={messages} users={users} me={cookies.nickname}/>
                     <Input message={message} sendMessage={sendMessage} setMessage={setMessage}/>
                 </div>
-                <OnlineUsers users={users} me={name}/>
+                <OnlineUsers users={users} me={cookies.nickname.toString()}/>
             </div>
         </div>
     );
