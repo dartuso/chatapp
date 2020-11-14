@@ -7,7 +7,7 @@ import {useCookies} from "react-cookie";
 import "./App.css"
 
 let socket = io(
-    'localhost:4001',
+    'dartusochatapp.herokuapp.com/',
     {
         transports: ['websocket']
     });
