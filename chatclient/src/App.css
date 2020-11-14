@@ -1,51 +1,54 @@
-.App{
-  height: 100vh;
-  width: 100vw;
-  justify-content: center;
-  display: flex;
-  flex-wrap: wrap;
-  background-color: #0e0672;
+.App {
+    height: 100vh;
+    width: 100vw;
+    justify-content: center;
+    display: flex;
+    flex-wrap: wrap;
+    background-color: #0e0672;
 }
 
-.Apptitle{
-  font-weight: bold;
-  color: white;
+.Apptitle {
+    font-weight: bold;
+    color: white;
 }
+
 .break {
-  flex-basis: 100%;
-  height: 0;
+    flex-basis: 100%;
+    height: 0;
 }
-.ChatGrid{
-  width: 960px;
-  display: grid;
-  grid-template-columns: 3fr 1fr;
-  background-color: #ffffff;
+
+.ChatGrid {
+    width: 960px;
+    display: grid;
+    grid-template-columns: 3fr 1fr;
+    background-color: #ffffff;
 }
 
 
-
-@media only screen and (max-width: 960px){
-  .ChatGrid{
-    width: 100%;
-  }
+@media only screen and (max-width: 960px) {
+    .ChatGrid {
+        width: 100%;
+    }
 }
 
-.ChatComponents{
-  display: block;
+.ChatComponents {
+    display: block;
 }
 
-.OnlineUsers{
-  display: block;
+.OnlineUsers {
+    display: block;
 }
-.Title{
-  font-weight: bolder;
-  background-color: #8ba9fc;
-  justify-content: center;
-  text-align: center;
-  padding-bottom: 10px;
+
+.Title {
+    font-weight: bolder;
+    background-color: #8ba9fc;
+    justify-content: center;
+    text-align: center;
+    padding-bottom: 10px;
 }
-.MessageBox{
-  height: 80vh;
-  overflow-x: hidden;
-  overflow-y: auto;
+
+.MessageBox {
+    height: 80vh;
+    overflow-x: hidden;
+    overflow-y: auto;
 }

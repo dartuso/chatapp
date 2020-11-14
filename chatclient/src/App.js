@@ -24,7 +24,7 @@ const App = () => {
         return () => {
             socket.off("join")
         }
-    },[]);
+    }, []);
 
     useEffect(() => {
         socket.on("getCached", messages => {
@@ -44,7 +44,7 @@ const App = () => {
         return () => {
             socket.off("updateUser")
         }
-    },[]);
+    }, []);
 
 
     useEffect(() => {
@@ -62,7 +62,7 @@ const App = () => {
             //FUNCTIONAL UPDATE VERY IMPORTANT
             message.user = true
             message.color =
-            setMessages([...messages,message])
+                setMessages([...messages, message])
         });
         return () => {
             socket.off("getMsg")
@@ -84,7 +84,7 @@ const App = () => {
             <div className="break"/>
             <div className="ChatGrid">
                 <div className="ChatComponents">
-                    <MessageDisplay messages={messages} users={users} />
+                    <MessageDisplay messages={messages} users={users}/>
                     <Input message={message} sendMessage={sendMessage} setMessage={setMessage}/>
                 </div>
                 <OnlineUsers users={users} me={cookies.nickname.toString()}/>

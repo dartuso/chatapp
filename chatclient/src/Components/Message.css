@@ -1,4 +1,4 @@
-.message{
+.message {
     width: 100%;
     display: flex;
     justify-content: flex-start;
@@ -6,17 +6,17 @@
     margin-left: 0;
 }
 
-.time{
+.time {
     margin-left: 10px;
     white-space: nowrap;
 }
 
-.user{
+.user {
     margin-left: 10px;
     font-weight: bolder;
 }
 
-.text{
+.text {
     margin-left: 10px;
     overflow-wrap: break-word;
 }
