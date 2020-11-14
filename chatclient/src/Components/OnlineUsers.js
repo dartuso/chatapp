@@ -1,13 +1,16 @@
 import React from "react";
 import "./OnlineUsers.css"
 
- const OnlineUsers = ({users}) => (
+ const OnlineUsers = ({users},me) => (
     <div>
-        <div>Users:</div>
+        <div className="Title">
+                Users:
+        </div>
+
         <div>
             {users.map(({name}) => (
-                <div>
-                    {name}
+                <div key={name}>
+                    {name === me ? name : name + " (You)"}
                 </div>
                 ))}
         </div>
