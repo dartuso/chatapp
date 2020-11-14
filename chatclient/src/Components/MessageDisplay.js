@@ -1,6 +1,5 @@
 import React, {useEffect, useRef} from "react";
 import Message from "./Message";
-import "./MessageDisplay.css"
 
 export default function MessageDisplay({messages, users}) {
     const messagesEndRef = useRef(null)
@@ -12,14 +11,14 @@ export default function MessageDisplay({messages, users}) {
     useEffect(scrollToBottom, [messages]);
 
     return (
-        <div>
+        <>
             <div className="Title">
                 Messages:
             </div>
             <div className="MessageBox">
-                {messages.map(message => <Message key={message.id}  {...message} />)}
+                {messages.map(message => <Message key={message.id + message.text + message.date}  {...message} />)}
                 <div ref={messagesEndRef}/>
             </div>
-        </div>
+        </>
     )
 }

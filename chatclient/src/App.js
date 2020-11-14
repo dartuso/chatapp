@@ -84,7 +84,7 @@ const App = () => {
             <div className="break"/>
             <div className="ChatGrid">
                 <div className="ChatComponents">
-                    <MessageDisplay messages={messages} users={users} me={cookies.nickname}/>
+                    <MessageDisplay messages={messages} users={users} />
                     <Input message={message} sendMessage={sendMessage} setMessage={setMessage}/>
                 </div>
                 <OnlineUsers users={users} me={cookies.nickname.toString()}/>

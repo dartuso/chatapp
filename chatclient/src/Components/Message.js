@@ -2,7 +2,7 @@ import React from "react";
 import {useCookies} from "react-cookie";
 import "./Message.css"
 
- const Message = ({name: name,text: text, color: color,date: date}) => {
+ const Message = ({name,text, color,date}) => {
      const [cookies, setCookie] = useCookies(["nickname"]);
 
      let sentByUser = false;
@@ -21,7 +21,7 @@ import "./Message.css"
 
      return (
          <div className="message" >
-             <div className="time" style={{color:color}}>
+             <div className="time">
                  {date}
              </div>
              <div className="user" style={{color:color}}>
