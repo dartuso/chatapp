@@ -15,56 +15,57 @@ let users = [];
 let messages = [];
 io.on("connect", socket => {
     socket.on("join", (name) => {
-        console.log("Receive join from " +socket.id + "with param: " + name + " ." )
-        if (existingUser(name) || !name) {
-            name = createNewNickName();
-            updateName(name)
-        }
+        console.log("Receive join from " + socket.id + "with param: " + name + " .")
+
         addUser(socket.id, name);
-
-
-
-        // console.log("Sent users to all users")
-        io.emit("users", users);
-        // socket.emit("getCached", messages);
-        sendServerMsg(name + " has joined!")
+        socket.emit("getCached", messages);
         // sendUserMsg(name + " is your name, welcome!")
     });
 
 
     socket.on("sendMsg", msg => {
-        console.log("Receive message from " +socket.id + "with param: " + msg + " ." )
+        console.log("Receive message from " + socket.id + "with param: " + msg + " .")
         const user = findUser(socket.id);
 
         let s = msg.split(" ")
-        //if name if color esleo
-        if (s[0] === "/name") {
-            const res = changeName({id: socket.id, newName: s[1]})
-            if (res !== null) {
-                updateName(res)
+        if (s[0].startsWith('/')) {
+            if (s[0] === "/name") {
+                const res = changeName({id: socket.id, newName: s[1]})
+                if (res !== null) {
+                    updateName(res.name)
+                } else {
+                    sendUserMsg("Error in name selection")
+                }
+            } else if (s[0] === "/color") {
+                if (changeColour({id: socket.id, color: s[1]}) === null) {
+                    sendUserMsg("Error in color selection. (/color RRGGBB hex)")
+                }
             } else {
-                sendUserMsg("Error in name selection")
+                sendUserMsg("Invalid command - select either /name or /color RRGGBB")
             }
-        } else if (s[0] === "/color") {
-            if (changeColour({id: socket.id, color: s[1]}) === null) {
-                sendUserMsg("Error in color selection. (/color RRGGBB hex)")
-            }
-        } else {
-            //TODO santize data?
+        } else if (user !== undefined) {
             console.log("sending message")
+            for (let i = 0; i < s.length; i++){
+                if(s[i] in emojiMap) {
+                    s[i] = emojiMap[s[i]]
+                }
+            }
+            let newEmojifiedMsg = s.join(' ')
+
             let message = storeMessage({
                 name: user.name,
-                text: msg,
+                text: newEmojifiedMsg,
                 color: user.color,
-                date: new Date().toLocaleString(),
+                date: new Date().toLocaleTimeString(),
             })
-            io.emit("getMsg", message);
+            // io.emit("getMsg", message);
+            io.emit("getCached", messages);
         }
     });
 
 
     socket.once("disconnect", () => {
-        console.log("Receive disconnect from " +socket.id )
+        console.log("Receive disconnect from " + socket.id)
         const user = removeUser(socket.id);
         if (user) {
             sendServerMsg(user.name + " has left.")
@@ -79,11 +80,6 @@ io.on("connect", socket => {
         socket.emit("updateUser", username)
     }
 
-    const updateColor = (color) => {
-        console.log("Sent update color to " + socket.id + "with content " + color)
-        socket.emit("updateColor", color)
-    }
-
     const storeMessage = ({name, text, color, date}) => {
         const msg = {name, text, color, date}
         if (messages.length > 0) {
@@ -96,7 +92,7 @@ io.on("connect", socket => {
                 }
             }
             messages.push(msg);
-        } else  {
+        } else {
             messages.push(msg);
         }
 
@@ -117,66 +113,211 @@ io.on("connect", socket => {
     }
 
     const existingUser = newUser => {
-        return users.find(user => user.nickname === newUser);
+        return users.find(user => user.name === newUser);
     };
 
     const addUser = (id, name) => {
+        if (existingUser(name) || !name || typeof name !== "string") {
+            name = createNewNickName();
+        }
         console.log("Adding user with id" + id + " and name " + name)
         name = name.trim()
         let color = "#000";
+        const existUser = users.find(user => user.id == id)
+        let user = {};
 
-        const user = {id, name, color};
-        users.push(user);
+        if (existUser === undefined){
+            user = {id, name, color};
+            users.push(user);
+        }
+
+        updateName(name)
+        io.emit("users", users);
+
         return {user};
     }
 
-    const removeUser = ({id}) => {
-        const index = findIndexUser(id)
-        if (index !== -1) {
-            console.log("Deleting user" )
-            return users.splice(index, 1)[0];
+    const removeUser = (id) => {
+        const user = users.find(user => user.id == id)
+        if(user !== undefined) {
+            for (let i = 0; i < users.length; i++) {
+                if (users[i].id === id || users[i].name === user.name) {
+                    users.splice(i, 1)
+                    console.log("Deleted user " + id)
+                }
+            }
         }
     }
 
     const changeName = ({id, newName}) => {
-        if (existingUser(newName)) {
-            return null
+        console.log("Searching for " + id + " to replace with " + newName)
+        for (let i = 0; i < users.length; i++) {
+            if (users[i].id === id) {
+                users[i].name = newName
+                console.log("Update user " + id + " to name " + users[i].name)
+                return users[i]
+            }
+        }
+        return null;
+    }
+
+
+    const changeColour = ({id, color}) => {
+        color = '#' + color
+        if(/^#([0-9A-F]{3}){1,2}$/i.test(color)){
+            findUser(id).color = color
+            return color
         } else {
-            findUser(id).name = newName
-            return newName
+            return null
         }
     }
 
-
-//TODO check valid hex
-    const changeColour = ({id, color}) => {
-        findUser(id).color = color
-        return color
-    }
-
-    const findUser = id => users.find(user => user.id === id);
-    const findIndexUser = id => users.findIndex(user => user.id === id);
+    const findUser = id => users.find(user => user.id == id);
+    const findIndexUser = id => users.findIndex(user => user.id == id);
 
     const sendServerMsg = (text) => {
         console.log("SERVER: sending msg: " + text)
-        let message = storeMessage({name: "SERVER", text: text, color: '#000', date: new Date().toLocaleString()})
-        io.emit("getMsg", message );
+        let message = storeMessage({name: "SERVER", text: text, color: '#000', date: new Date().toLocaleTimeString()})
+        io.emit("getMsg", message);
     }
-
 
 
     const sendUserMsg = (msg) => {
-        console.log("Sending server messages to " +socket.id + "with content " + msg )
-        socket.emit("getMsg", {name: "SERVER", text: msg, color: '#000', date: new Date().toLocaleString()});
-    }
-
-
-    const sendPreviousMessages = () => {
-        console.log("Sending cached  to " +socket.id )
+        console.log("Sending server messages to " + socket.id + "with content " + msg)
+        socket.emit("getMsg", {name: "SERVER", text: msg, color: '#000', date: new Date().toLocaleTimeString()});
     }
 
 });
 
 server.listen(port, () => console.log(`Listening on port ${port}`));
 
+
+const emojiMap = {
+    'o/': '👋',
+    '</3': '💔',
+    '<3': '💗',
+    '8-D': '😁',
+    '8D': '😁',
+    ':-D': '😁',
+    ':-3': '😁',
+    ':3': '😁',
+    ':D': '😁',
+    'B^D': '😁',
+    'X-D': '😁',
+    'x-D': '😁',
+    ':\')': '😂',
+    ':\'-)': '😂',
+    ':-))': '😃',
+    '8)': '😄',
+    ':)': '😊',
+    ':-)': '😄',
+    ':]': '😄',
+    ':^)': '😄',
+    ':c)': '😄',
+    ':o)': '😄',
+    ':}': '😄',
+    '0:)': '😇',
+    '0:-)': '😇',
+    '0:-3': '😇',
+    '0:3': '😇',
+    '0;^)': '😇',
+    'O:-)': '😇',
+    '3:)': '😈',
+    '3:-)': '😈',
+    '}:)': '😈',
+    '}:-)': '😈',
+    '*)': '😉',
+    '*-)': '😉',
+    ':-,': '😉',
+    ';)': '😉',
+    ';-)': '😉',
+    ';-]': '😉',
+    ';D': '😉',
+    ';]': '😉',
+    ';^)': '😉',
+    ':-|': '😐',
+    ':|': '😐',
+    ':(': '😞',
+    ':-(': '😒',
+    ':-<': '😒',
+    ':-[': '😒',
+    ':-c': '😒',
+    ':<': '😒',
+    ':[': '😒',
+    ':c': '😒',
+    ':{': '😒',
+    '%)': '😖',
+    '%-)': '😖',
+    ':-P': '😜',
+    ':-b': '😜',
+    ':-p': '😜',
+    ':P': '😜',
+    ':b': '😜',
+    ':p': '😜',
+    ';(': '😜',
+    'X-P': '😜',
+    'd:': '😜',
+    'x-p': '😜',
+    ':-||': '😠',
+    ':@': '😠',
+    ':-.': '😡',
+    ':-/': '😡',
+    ':/': '😐',
+    ':L': '😡',
+    ':S': '😡',
+    ':\\': '😡',
+    ':\'(': '😢',
+    ':\'-(': '😢',
+    '^5': '😤',
+    '^<_<': '😤',
+    'o/\\o': '😤',
+    '|-O': '😫',
+    '|;-)': '😫',
+    ':###..': '😰',
+    ':#': '😅',
+    ':-###..': '😰',
+    'D-\':': '😱',
+    D8: '😱',
+    'D:': '😱',
+    'D:<': '😱',
+    'D;': '😱',
+    DX: '😱',
+    'v.v': '😱',
+    '8-0': '😲',
+    ':-O': '😲',
+    ':-o': '😲',
+    ':O': '😲',
+    ':o': '😲',
+    'O-O': '😲',
+    O_O: '😲',
+    O_o: '😲',
+    'o-o': '😲',
+    o_O: '😲',
+    o_o: '😲',
+    ':$': '😳',
+    '#-)': '😵',
+    ':&': '😶',
+    ':-#': '😶',
+    ':-&': '😶',
+    ':-X': '😶',
+    ':X': '😶',
+    ':-J': '😼',
+    ':*': '😽',
+    ':^*': '😽',
+    '*\\0/*': '🙆',
+    '\\o/': '🙆',
+    ':>': '😄',
+    '>.<': '😡',
+    '>:(': '😠',
+    '>:)': '😈',
+    '>:-)': '😈',
+    '>:/': '😡',
+    '>:O': '😲',
+    '>:P': '😜',
+    '>:[': '😒',
+    '>:\\': '😡',
+    '>;)': '😈',
+    '>_>^': '😤',
+    '^^': '😊',
+};
 
