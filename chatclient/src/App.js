@@ -88,7 +88,7 @@ const App = () => {
                     <MessageDisplay messages={messages} users={users}/>
                     <Input message={message} sendMessage={sendMessage} setMessage={setMessage}/>
                 </div>
-                <OnlineUsers users={users} me={cookies.nickname.toString()}/>
+                <OnlineUsers users={users} />
             </div>
         </div>
     );
