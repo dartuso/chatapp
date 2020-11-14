@@ -6,11 +6,7 @@ import OnlineUsers from "./Components/OnlineUsers";
 import {useCookies} from "react-cookie";
 import "./App.css"
 
-const socket = io(
-    'localhost:4001',
-    {
-        transports: ['websocket']
-    });
+let socket
 
 const App = () => {
     const [name, setName] = useState("");
@@ -19,55 +15,65 @@ const App = () => {
     const [messages, setMessages] = useState([]);
     const [cookies, setCookie] = useCookies(["nickname"]);
 
+    useEffect(() => {
+         socket = io(
+            'localhost:4001',
+            {
+                transports: ['websocket']
+            });
+        socket.emit("join", cookies.nickname);
+        socket.on("getCached", messages => {
+                setMessages(messages);
+            }
+        );
+    }, []);
+
+
+
 
     useEffect(() => {
-        socket.emit("join", cookies.nickname);
         socket.on("updateUser", username => {
             setName("")
             setName(username);
             setCookie("nickname", username)
         })
-    }, [cookies.nickname, cookies, setCookie]);
+    },[cookies,setCookie,name,setName]);
 
     useEffect(() => {
         socket.on("users", users => {
             setUsers([])
             setUsers(users);
         });
-    }, [users]);
+    },[users,setUsers]);
 
 
     useEffect(() => {
-        socket.on("getCached", messages => {
-                console.log("Received cache")
-                setMessages([])
-                setMessages(messages);
-            }
-        );
-
         socket.on("getMsg", message => {
-            console.log("Received single message")
-            setMessages([...messages, message])
+            messages.push(message)
+            setMessages(messages)
         });
 
-    }, [messages]);
+    },[messages]);
 
 
     const sendMessage = event => {
-        event.preventDefault()
-        socket.emit("sendMsg", message);
+        if (message !== "") {
+            event.preventDefault()
+            socket.emit("sendMsg", message);
+            setMessage("")
+        }
     };
-
 
     return (
         <div className="App">
-            <div className="Info">{name} is your name.</div>
+            <div className="Apptitle">Daniel's Chat App 📃</div>
+            <div className="break"/>
             <div className="ChatGrid">
-                <OnlineUsers users={users}/>
-                <div className="ChatBox">
+                <div>
                     <MessageDisplay messages={messages} users={users}/>
                     <Input message={message} sendMessage={sendMessage} setMessage={setMessage}/>
                 </div>
+                <OnlineUsers users={users} me={name}/>
             </div>
         </div>
     );
