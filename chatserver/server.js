@@ -8,6 +8,7 @@ const app = express();
 app.use(router);
 
 const server = http.createServer(app);
+// noinspection JSValidateTypes
 const io = socketIo(server);
 
 
@@ -17,9 +18,12 @@ io.on("connect", socket => {
     socket.on("join", (name) => {
         console.log("Receive join from " + socket.id + "with param: " + name + " .")
 
-        addUser(socket.id, name);
+        const user = addUser(socket.id, name);
+        updateName(user)
+        io.emit("users", users);
         socket.emit("getCached", messages);
-        // sendUserMsg(name + " is your name, welcome!")
+        sendServerMsg( user + " has joined")
+        sendUserMsg("Welcome! your name is " + user)
     });
 
 
@@ -30,21 +34,28 @@ io.on("connect", socket => {
         let s = msg.split(" ")
         if (s[0].startsWith('/')) {
             if (s[0] === "/name") {
-                const res = changeName({id: socket.id, newName: s[1]})
+                const oldName = user.name;
+                const newName = s[1]
+                const res = changeName({id: socket.id, newName: newName})
                 if (res !== null) {
-                    updateName(res.name)
+                    sendServerMsg(oldName + " is now " + newName)
+                    updateName(newName)
+                    io.emit("users", users);
+                    io.emit("getCached", messages);
                 } else {
-                    sendUserMsg("Error in name selection")
+                    sendUserMsg("Error in name selection!")
                 }
             } else if (s[0] === "/color") {
                 if (changeColour({id: socket.id, color: s[1]}) === null) {
                     sendUserMsg("Error in color selection. (/color RRGGBB hex)")
+                } else {
+                    io.emit("users", users);
+                    io.emit("getCached", messages);
                 }
             } else {
-                sendUserMsg("Invalid command - select either /name or /color RRGGBB")
+                sendUserMsg("Invalid command - select either /name or /color RRGGBB!")
             }
         } else if (user !== undefined) {
-            console.log("sending message")
             for (let i = 0; i < s.length; i++){
                 if(s[i] in emojiMap) {
                     s[i] = emojiMap[s[i]]
@@ -53,13 +64,14 @@ io.on("connect", socket => {
             let newEmojifiedMsg = s.join(' ')
 
             let message = storeMessage({
+                id: socket.id,
                 name: user.name,
                 text: newEmojifiedMsg,
                 color: user.color,
                 date: new Date().toLocaleTimeString(),
             })
-            // io.emit("getMsg", message);
-            io.emit("getCached", messages);
+
+            io.emit("getMsg", message);
         }
     });
 
@@ -80,24 +92,20 @@ io.on("connect", socket => {
         socket.emit("updateUser", username)
     }
 
-    const storeMessage = ({name, text, color, date}) => {
-        const msg = {name, text, color, date}
+    const storeMessage = ({id, name, text, color, date}) => {
+        const msg = {id, name, text, color, date}
         if (messages.length > 0) {
-            const {prevname, prevtext, prevcolor, prevdate} = messages[messages.length - 1]
-            if (prevname === name && prevdate === date) {
+            const {name: prevName,date: prevDate} = messages[messages.length - 1]
+            if (prevName === name && prevDate === date) {
                 console.log("Found duplicate!")
             } else {
                 if (messages.length > 200) {
                     messages.shift();
                 }
             }
-            messages.push(msg);
-        } else {
-            messages.push(msg);
         }
-
+        messages.push(msg);
         return msg;
-
     }
 
     function createNewNickName() {
@@ -117,28 +125,24 @@ io.on("connect", socket => {
     };
 
     const addUser = (id, name) => {
-        if (existingUser(name) || !name || typeof name !== "string") {
+        if (existingUser(name) || !name || typeof name !== "string" || name === 'SERVER') {
             name = createNewNickName();
         }
         console.log("Adding user with id" + id + " and name " + name)
         name = name.trim()
         let color = "#000";
-        const existUser = users.find(user => user.id == id)
-        let user = {};
+        const existUser = users.find(user => user.id === id)
+        let user = {id, name, color};
 
         if (existUser === undefined){
-            user = {id, name, color};
             users.push(user);
         }
 
-        updateName(name)
-        io.emit("users", users);
-
-        return {user};
+        return name;
     }
 
     const removeUser = (id) => {
-        const user = users.find(user => user.id == id)
+        const user = users.find(user => user.id === id)
         if(user !== undefined) {
             for (let i = 0; i < users.length; i++) {
                 if (users[i].id === id || users[i].name === user.name) {
@@ -155,6 +159,11 @@ io.on("connect", socket => {
             if (users[i].id === id) {
                 users[i].name = newName
                 console.log("Update user " + id + " to name " + users[i].name)
+                for (let j = 0; j < messages.length; j++) {
+                    if(messages[j].id === id){
+                        messages[j].name = newName
+                    }
+                }
                 return users[i]
             }
         }
@@ -166,30 +175,34 @@ io.on("connect", socket => {
         color = '#' + color
         if(/^#([0-9A-F]{3}){1,2}$/i.test(color)){
             findUser(id).color = color
+            for (let j = 0; j < messages.length; j++) {
+                if(messages[j].id === id){
+                    messages[j].color = color
+                }
+            }
             return color
         } else {
             return null
         }
     }
 
-    const findUser = id => users.find(user => user.id == id);
-    const findIndexUser = id => users.findIndex(user => user.id == id);
+    const findUser = id => users.find(user => user.id === id);
 
     const sendServerMsg = (text) => {
         console.log("SERVER: sending msg: " + text)
-        let message = storeMessage({name: "SERVER", text: text, color: '#000', date: new Date().toLocaleTimeString()})
+        let message = storeMessage({id:'SERVER', name: "SERVER", text: text, color: '#ddbb2f', date: new Date().toLocaleTimeString()})
         io.emit("getMsg", message);
     }
 
 
     const sendUserMsg = (msg) => {
         console.log("Sending server messages to " + socket.id + "with content " + msg)
-        socket.emit("getMsg", {name: "SERVER", text: msg, color: '#000', date: new Date().toLocaleTimeString()});
+        socket.emit("getMsg", {id:'SERVER', name: "SERVER", text: msg, color: '#a796f5', date: new Date().toLocaleTimeString()});
     }
 
 });
 
-server.listen(port, () => console.log(`Listening on port ${port}`));
+server.listen(port.toString(), () => console.log(`Listening on port ${port}`));
 
 
 const emojiMap = {
