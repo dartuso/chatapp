@@ -24,7 +24,8 @@ const App = () => {
         return () => {
             socket.off("join")
         }
-    }, []);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    },[]);
 
     useEffect(() => {
         socket.on("getCached", messages => {
@@ -44,7 +45,7 @@ const App = () => {
         return () => {
             socket.off("updateUser")
         }
-    }, []);
+    }, [setCookie]);
 
 
     useEffect(() => {

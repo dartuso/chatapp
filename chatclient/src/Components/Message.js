@@ -3,7 +3,7 @@ import {useCookies} from "react-cookie";
 import "./Message.css"
 
 const Message = ({name, text, color, date}) => {
-    const [cookies, setCookie] = useCookies(["nickname"]);
+    const [cookies] = useCookies(["nickname"]);
 
     let sentByUser = false;
     if (name === cookies.nickname) {
