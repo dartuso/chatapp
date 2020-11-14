@@ -21,13 +21,13 @@ import "./Message.css"
 
      return (
          <div className="message" >
-             <div className="time">
-                 {date + " "}
+             <div className="time" style={{color:color}}>
+                 {date}
              </div>
              <div className="user" style={{color:color}}>
-                 {name + ": "}
+                 {name + ":"}
              </div>
-             <div className="message" style={sentByUser ? {fontWeight: bold} : {fontWeight: normal}}>
+             <div className="text" style={sentByUser ? {fontWeight: 'bold'} : {fontWeight: 'normal'}}>
                  {text}
              </div>
          </div>
