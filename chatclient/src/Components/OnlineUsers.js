@@ -1,20 +1,21 @@
 import React from "react";
-import "./OnlineUsers.css"
 
- const OnlineUsers = ({users},me) => (
-    <div>
-        <div className="Title">
-                Users:
-        </div>
+ const OnlineUsers = ({users}) => {
 
-        <div>
-            {users.map(({name}) => (
-                <div key={name}>
-                    {name === me ? name : name + " (You)"}
-                </div>
-                ))}
-        </div>
-    </div>
- );
+     return(
+         <div className='OnlineUsers'>
+             <div className="Title">
+                 Users:
+             </div>
+             <div>
+                 {users.map(({name}) => (
+                     <div key={name}>
+                         {name}
+                     </div>
+                 ))}
+             </div>
+         </div>
+     );
+ }
 
 export default OnlineUsers;
