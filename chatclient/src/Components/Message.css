@@ -1,0 +1,21 @@
+.message{
+    width: 100%;
+    display: flex;
+    justify-content: flex-start;
+    margin-top: 3px;
+    margin-left: 0;
+}
+
+.time{
+    margin-left: 10px;
+    white-space: nowrap;
+}
+
+.user{
+    margin-left: 10px;
+}
+
+.text{
+    margin-left: 10px;
+    overflow-wrap: break-word;
+}
