@@ -7,7 +7,6 @@ import {useCookies} from "react-cookie";
 import "./App.css"
 
 let socket = io(
-    'dartusochatapp.herokuapp.com/',
     {
         transports: ['websocket']
     });
@@ -25,7 +24,7 @@ const App = () => {
             socket.off("join")
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    },[]);
+    }, []);
 
     useEffect(() => {
         socket.on("getCached", messages => {
@@ -88,7 +87,7 @@ const App = () => {
                     <MessageDisplay messages={messages} users={users}/>
                     <Input message={message} sendMessage={sendMessage} setMessage={setMessage}/>
                 </div>
-                <OnlineUsers users={users} />
+                <OnlineUsers users={users}/>
             </div>
         </div>
     );
