@@ -1,13 +1,12 @@
 const http = require("http");
 const express = require("express");
 const socketIo = require("socket.io");
-var path = require("path")
+let path = require("path")
 const port = process.env.PORT || 4001;
-const router = require("./router");
 const app = express();
 app.use(express.static(path.join(__dirname, '../chatclient/build')));
 
-app.get('/', (req, res, next) => res.sendFile(__dirname + './index.html'));
+app.get('/', (req, res) => res.sendFile(__dirname + './index.html'));
 
 const server = http.createServer(app);
 // noinspection JSValidateTypes
