@@ -60,9 +60,7 @@ const App = () => {
     useEffect(() => {
         socket.on("getMsg", message => {
             //FUNCTIONAL UPDATE VERY IMPORTANT
-            message.user = true
-            message.color =
-                setMessages([...messages, message])
+            setMessages([...messages, message])
         });
         return () => {
             socket.off("getMsg")
